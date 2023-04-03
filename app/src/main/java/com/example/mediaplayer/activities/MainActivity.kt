@@ -14,7 +14,6 @@ import com.example.mediaplayer.AudioFilesAdapter
 import com.example.mediaplayer.R
 import com.example.mediaplayer.TestConstants
 import com.example.mediaplayer.databinding.ActivityMainBinding
-import com.example.mediaplayer.databinding.FragmentMusicPlayerPanelBinding
 import com.example.mediaplayer.fragments.MusicPlayerFragmentPanel
 import com.example.mediaplayer.model.AudioFile
 import com.google.android.material.snackbar.Snackbar
@@ -75,8 +74,7 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
         val durationMinutes = duration.toFloat() / 60_000
         val minutesInt = durationMinutes.toInt()
         val minutesRemnant = ((durationMinutes - minutesInt) * 60).toInt()
-        val result = String.format("%02d:%02d", minutesInt, minutesRemnant)
-        return result
+        return String.format("%02d:%02d", minutesInt, minutesRemnant)
     }
 
     private fun setupListOfAudioIntoRecyclerView(

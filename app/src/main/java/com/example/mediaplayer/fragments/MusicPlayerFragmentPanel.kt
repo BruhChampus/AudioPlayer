@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import com.example.mediaplayer.R
 import com.example.mediaplayer.TestConstants
@@ -20,7 +21,8 @@ class MusicPlayerFragmentPanel : Fragment() {
 
     private lateinit var binding: FragmentMusicPlayerPanelBinding
     private var audioId: Int = 0
-    private lateinit var mediaPlayer:MediaPlayer
+    private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var animation: Animation
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,13 +39,21 @@ class MusicPlayerFragmentPanel : Fragment() {
     ): View {
 
         binding = FragmentMusicPlayerPanelBinding.inflate(layoutInflater)
+        init()
+
+        return binding.root
+    }
+
+
+
+    private fun init(){
         binding.tvControlPanelSongTitle.text = TestConstants.audioList[audioId].name
         binding.tvControlPanelSongAuthor.text = TestConstants.audioList[audioId].author
         binding.tvControlPanelSongDuration.text = TestConstants.audioList[audioId].duration
-        // Inflate the layout for this fragment
+
 
         mediaPlayer = MediaPlayer.create(requireContext(), TestConstants.audioList[audioId].resId)
-        val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.text_rolling)
+        animation = AnimationUtils.loadAnimation(requireContext(), R.anim.text_rolling)
 
         mediaPlayer.start()
         binding.ibPlay.visibility = View.GONE
@@ -62,11 +72,11 @@ class MusicPlayerFragmentPanel : Fragment() {
             binding.ibPlay.visibility = View.VISIBLE
             binding.ibPause.visibility = View.GONE
         }
-
-        return binding.root
     }
 
     override fun onDestroy() {
+        binding.root.clearAnimation()
+        mediaPlayer.reset()
         mediaPlayer.release()
         super.onDestroy()
     }
