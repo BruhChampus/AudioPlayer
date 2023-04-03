@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mediaplayer.AudioClickListener
 import com.example.mediaplayer.AudioFilesAdapter
 import com.example.mediaplayer.R
+import com.example.mediaplayer.TestConstants
 import com.example.mediaplayer.databinding.ActivityMainBinding
 import com.example.mediaplayer.databinding.FragmentMusicPlayerPanelBinding
 import com.example.mediaplayer.fragments.MusicPlayerFragmentPanel
@@ -21,6 +22,7 @@ import com.google.android.material.snackbar.Snackbar
 class MainActivity : AppCompatActivity(), AudioClickListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var toggle: ActionBarDrawerToggle
+    val audioList = TestConstants.audioList
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -37,7 +39,7 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
             }
             true
         }
-        val audioList = ArrayList<AudioFile>()
+
         addSong(R.raw.health_major_crimes_cyberpunk_2077, audioList)
         addSong(R.raw.omori_underwater_prom_queens, audioList)
         setupListOfAudioIntoRecyclerView(audioList)
@@ -59,7 +61,7 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
 
             val durationString = duration?.let { calculateMinutes(it.toInt()) }
             val resourceName = resources.getResourceEntryName(resId)
-            val audio = AudioFile(title ?: resourceName, durationString ?: "00:00", author ?: "Various artists")
+            val audio = AudioFile(title ?: resourceName, durationString ?: "00:00", author ?: "Various artists", resId)
 
             audioList.add(audio)
         } else {
@@ -73,7 +75,8 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
         val durationMinutes = duration.toFloat() / 60_000
         val minutesInt = durationMinutes.toInt()
         val minutesRemnant = ((durationMinutes - minutesInt) * 60).toInt()
-        return "$minutesInt:$minutesRemnant"
+        val result = String.format("%02d:%02d", minutesInt, minutesRemnant)
+        return result
     }
 
     private fun setupListOfAudioIntoRecyclerView(
@@ -106,7 +109,7 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
     }
 
     override fun onClick(audio: AudioFile) {
-        val fragment = MusicPlayerFragmentPanel.newInstance("2","24")
+        val fragment = MusicPlayerFragmentPanel.newInstance(audioList.indexOf(audio))
        supportFragmentManager.beginTransaction().apply {
           replace(R.id.fl_bottom_sheet, fragment).commit()
        }
