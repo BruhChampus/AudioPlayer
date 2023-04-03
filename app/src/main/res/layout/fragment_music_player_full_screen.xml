@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.MusicPlayerFragmentFullScreen">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha=".75"
+        android:scaleType="centerCrop"
+        android:src="@drawable/song_cover"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/ll_details_control_panel_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/ib_previous_skip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:background="@drawable/ic_control_round_button_shape"
+            android:src="@drawable/ic_skip_previous"
+
+            />
+
+        <ImageButton
+            android:id="@+id/ib_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:background="@drawable/ic_control_round_button_shape"
+            android:src="@drawable/ic_pause" />
+
+        <ImageButton
+            android:id="@+id/ib_next_skip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:background="@drawable/ic_control_round_button_shape"
+            android:src="@drawable/ic_skip_next" />
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/tv_details_song_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:background="@drawable/background_details_screen_song_info"
+        android:padding="6dp"
+        android:text="Doom eternal soundtrack super ultra..."
+        android:textColor="@color/white_second"
+        android:textSize="18dp"
+        app:layout_constraintBottom_toTopOf="@id/tv_details_song_author"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ll_details_control_panel_buttons" />
+
+
+    <TextView
+        android:id="@+id/tv_details_song_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/background_details_screen_song_info"
+        android:padding="6dp"
+        android:text="@string/hello_blank_fragment"
+        android:textColor="@color/white_second"
+        android:textSize="14dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_details_song_title" />
+
+    <TextView
+        android:id="@+id/tv_details_song_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/background_details_screen_song_info"
+        android:padding="6dp"
+        android:text="@string/hello_blank_fragment"
+        android:textColor="@color/white_second"
+        android:textSize="14dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_details_song_title" />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="@color/white_second"
+        android:gravity="center"
+        android:text="ProgressBar"
+        android:textSize="49dp"/>
+    
+</androidx.constraintlayout.widget.ConstraintLayout>
