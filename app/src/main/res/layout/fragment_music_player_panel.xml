@@ -43,7 +43,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="Doom eternal soundtrack"
-                android:textColor="@color/black"
+                android:textColor="@color/white_second"
                 android:textSize="18sp" />
         </HorizontalScrollView>
 
@@ -54,7 +54,7 @@
             android:layout_marginStart="24dp"
             android:layout_marginTop="6dp"
             android:text="Mick Gordon"
-            android:textColor="@color/black"
+            android:textColor="@color/white_second"
             android:textSize="14sp"
             app:layout_constraintStart_toEndOf="@id/iv_control_panel_song_cover"
             app:layout_constraintTop_toBottomOf="@id/hsv_control_panel_song_title" />
@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:text="3:28 "
-            android:textColor="@color/black"
+            android:textColor="@color/white_second"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/tv_control_panel_song_author"
@@ -96,7 +96,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/white_second"
                 android:src="@drawable/ic_play"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:tint="@color/black" />
 
 
