@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/cl_fragment_full_screen"
     tools:context=".fragments.MusicPlayerFragmentFullScreen">
 
     <!-- TODO: Update blank fragment layout -->
@@ -40,6 +41,8 @@
             android:adjustViewBounds="true"
             android:background="@drawable/ic_control_round_button_shape"
             android:src="@drawable/ic_skip_previous"
+            android:visibility="invisible"
+            tools:visibility="visible"
 
             />
 
@@ -51,7 +54,22 @@
             android:layout_weight="1"
             android:adjustViewBounds="true"
             android:background="@drawable/ic_control_round_button_shape"
-            android:src="@drawable/ic_pause" />
+            android:src="@drawable/ic_pause"
+            android:visibility="gone"
+            tools:visibility="visible"
+            />
+
+        <ImageButton
+            android:id="@+id/ib_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:background="@drawable/ic_control_round_button_shape"
+            android:src="@drawable/ic_play"
+            android:visibility="gone" />
+
 
         <ImageButton
             android:id="@+id/ib_next_skip"
@@ -61,7 +79,9 @@
             android:layout_weight="1"
             android:adjustViewBounds="true"
             android:background="@drawable/ic_control_round_button_shape"
-            android:src="@drawable/ic_skip_next" />
+            android:src="@drawable/ic_skip_next"
+            android:visibility="invisible"
+            tools:visibility="visible" />
 
     </LinearLayout>
 
@@ -112,12 +132,12 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:textColor="@color/white_second"
         android:gravity="center"
         android:text="ProgressBar"
-        android:textSize="49dp"/>
-    
+        android:textColor="@color/white_second"
+        android:textSize="49dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

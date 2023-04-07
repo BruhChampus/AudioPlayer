@@ -1,12 +1,17 @@
 package com.example.mediaplayer.activities
 
+import android.app.ActivityManager
 import android.app.PendingIntent.getService
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.ServiceConnection
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -29,7 +34,7 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
     var currentAudio: Int = 0
     private lateinit var mediaStateBroadcastReceiver: ControlPanelReceiver
     private lateinit var serviceIntent: Intent
-
+    var isPlaying = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -46,6 +51,7 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
         serviceIntent = Intent(this@MainActivity, MusicService::class.java)
 
         addSong(R.raw.health_major_crimes_cyberpunk_2077, audioList)
+        addSong(R.raw.gorillaz_cracker_island_ft_thundercat, audioList)
         addSong(R.raw.omori_underwater_prom_queens, audioList)
         setupListOfAudioIntoRecyclerView(audioList)
         initializeBottomSheet()
@@ -60,16 +66,79 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
                 override fun onPlayClicked() {
                     serviceIntent.action = MusicService.ACTION_PLAY
                     startService(serviceIntent)
-                }
+                    isPlaying = true
+                 }
 
                 override fun onPauseClicked() {
                     serviceIntent.action = MusicService.ACTION_PAUSE
                     startService(serviceIntent)
+                    isPlaying = false
+                }
+
+                override fun onNextClicked() {
+                    if (currentAudio != audioList.size-1) {
+                        currentAudio++
+                        isPlaying = true
+                        serviceIntent.putExtra(TestConstants.AUDIO_ID, currentAudio)
+
+
+                        when (supportFragmentManager.findFragmentById(R.id.fl_bottom_sheet)) {
+                            is MusicPlayerFragmentPanel -> {
+                                val fragment =
+                                    MusicPlayerFragmentPanel.newInstance(currentAudio, isPlaying)
+                                supportFragmentManager.beginTransaction().apply {
+                                    replace(R.id.fl_bottom_sheet, fragment).commitAllowingStateLoss()
+                                }
+                            }
+                            is MusicPlayerFragmentFullScreen -> {
+                                val fragment =
+                                    MusicPlayerFragmentFullScreen.newInstance(currentAudio, isPlaying)
+                                supportFragmentManager.beginTransaction().apply {
+                                    replace(R.id.fl_bottom_sheet, fragment).commitAllowingStateLoss()
+                                }
+                            }
+                        }
+
+
+
+                        serviceIntent.action = MusicService.ACTION_NEXT
+                        startService(serviceIntent)
+                    }
+                }
+
+                override fun onPreviousClicked() {
+                    if (currentAudio != 0) {
+                        currentAudio--
+                        isPlaying = true
+                        serviceIntent.putExtra(TestConstants.AUDIO_ID, currentAudio)
+
+                        when (supportFragmentManager.findFragmentById(R.id.fl_bottom_sheet)) {
+                            is MusicPlayerFragmentPanel -> {
+                                val fragment =
+                                    MusicPlayerFragmentPanel.newInstance(currentAudio, isPlaying)
+                                supportFragmentManager.beginTransaction().apply {
+                                    replace(R.id.fl_bottom_sheet, fragment).commitAllowingStateLoss()
+                                }
+                            }
+                            is MusicPlayerFragmentFullScreen -> {
+                                val fragment =
+                                    MusicPlayerFragmentFullScreen.newInstance(currentAudio, isPlaying)
+                                supportFragmentManager.beginTransaction().apply {
+                                    replace(R.id.fl_bottom_sheet, fragment).commitAllowingStateLoss()
+                                }
+                            }
+                        }
+
+                        serviceIntent.action = MusicService.ACTION_PREVIOUS
+                        startService(serviceIntent)
+                    }
                 }
             })
         val intentFilter = IntentFilter().apply {
             addAction(MusicService.ACTION_PLAY)
             addAction(MusicService.ACTION_PAUSE)
+            addAction(MusicService.ACTION_NEXT)
+            addAction(MusicService.ACTION_PREVIOUS)
         }
         registerReceiver(mediaStateBroadcastReceiver, intentFilter)
 
@@ -81,6 +150,7 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
         toggle.syncState()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
+
 
     private fun initializeBottomSheet() {
         val bottomSheet = binding.flBottomSheet
@@ -94,7 +164,7 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
             BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    val fragment = MusicPlayerFragmentFullScreen.newInstance("2", "")
+                    val fragment = MusicPlayerFragmentFullScreen.newInstance(currentAudio, isPlaying)
                     supportFragmentManager.beginTransaction().apply {
                         replace(R.id.fl_bottom_sheet, fragment).commit()
                     }
@@ -102,12 +172,17 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
                 }
             }
 
+
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 if (slideOffset == 0f) {
-                    val fragment = MusicPlayerFragmentPanel.newInstance(currentAudio)
+                    val fragment =
+                        MusicPlayerFragmentPanel.newInstance(currentAudio, isPlaying)
                     supportFragmentManager.beginTransaction().apply {
                         replace(R.id.fl_bottom_sheet, fragment).commit()
                     }
+
+                    Log.e("isMusicPlay", "$isPlaying")
+
                 }
             }
         })
@@ -171,6 +246,7 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
         }
         when (item.itemId) {
             R.id.mi_do_something -> Snackbar.make(binding.drawerLayout, "Bruh", 4).show()
+
         }
         return super.onOptionsItemSelected(item)
     }
@@ -181,16 +257,22 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
         return super.onCreateOptionsMenu(menu)
     }
 
+
     override fun onClick(audio: AudioFile) {
+        isPlaying = true
         currentAudio = audioList.indexOf(audio)
-        val fragment = MusicPlayerFragmentPanel.newInstance(audioList.indexOf(audio))
+        val fragment = MusicPlayerFragmentPanel.newInstance(audioList.indexOf(audio), isPlaying)
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.fl_bottom_sheet, fragment).commit()
         }
 
         serviceIntent.action = MusicService.ACTION_PLAY
+        serviceIntent.putExtra(TestConstants.AUDIO_ID, currentAudio)
+
         startService(serviceIntent)
+
     }
+
 
     override fun onDestroy() {
         super.onDestroy()

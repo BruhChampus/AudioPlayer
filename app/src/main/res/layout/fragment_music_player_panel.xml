@@ -11,10 +11,9 @@
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:id="@+id/cl_song_control_panel"
-        >
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/iv_control_panel_song_cover"
@@ -88,7 +87,9 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/white_second"
                 android:src="@drawable/ic_skip_previous"
-                app:tint="@color/black" />
+                android:visibility="invisible"
+                app:tint="@color/black"
+                tools:visibility="visible" />
 
             <ImageButton
                 android:id="@+id/ib_play"
@@ -97,7 +98,8 @@
                 android:backgroundTint="@color/white_second"
                 android:src="@drawable/ic_play"
                 android:visibility="gone"
-                app:tint="@color/black" />
+                app:tint="@color/black"
+                tools:visibility="visible" />
 
 
             <ImageButton
@@ -114,7 +116,9 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/white_second"
                 android:src="@drawable/ic_skip_next"
-                app:tint="@color/black" />
+                android:visibility="invisible"
+                app:tint="@color/black"
+                tools:visibility="visible" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
