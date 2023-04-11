@@ -2,14 +2,15 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_fragment_full_screen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/cl_fragment_full_screen"
     tools:context=".fragments.MusicPlayerFragmentFullScreen">
 
     <!-- TODO: Update blank fragment layout -->
 
     <ImageView
+        android:id="@+id/iv_song_cover_full_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha=".75"
@@ -56,8 +57,7 @@
             android:background="@drawable/ic_control_round_button_shape"
             android:src="@drawable/ic_pause"
             android:visibility="gone"
-            tools:visibility="visible"
-            />
+            tools:visibility="visible" />
 
         <ImageButton
             android:id="@+id/ib_play"
@@ -112,8 +112,25 @@
         android:text="@string/hello_blank_fragment"
         android:textColor="@color/white_second"
         android:textSize="14dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_details_song_title" />
+
+
+    <SeekBar
+        android:id="@+id/sb_details_seek_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_details_screen_song_info"
+        android:padding="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="10dp"
+        android:progressBackgroundTint="@color/black"
+        android:progressTint="@color/gray"
+        android:thumbTint="@color/white_second"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_details_song_author" />
 
     <TextView
         android:id="@+id/tv_details_song_duration"
@@ -122,22 +139,23 @@
         android:layout_margin="16dp"
         android:background="@drawable/background_details_screen_song_info"
         android:padding="6dp"
-        android:text="@string/hello_blank_fragment"
+        android:text="03:23"
         android:textColor="@color/white_second"
         android:textSize="14dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_details_song_title" />
-
+         app:layout_constraintTop_toBottomOf="@id/sb_details_seek_bar" />
 
     <TextView
-        android:layout_width="match_parent"
+        android:id="@+id/tv_details_song_passed"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="ProgressBar"
+        android:layout_margin="16dp"
+        android:background="@drawable/background_details_screen_song_info"
+        android:padding="6dp"
+        android:text="00:00"
         android:textColor="@color/white_second"
-        android:textSize="49dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textSize="14dp"
+        app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintTop_toBottomOf="@id/sb_details_seek_bar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

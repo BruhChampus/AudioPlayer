@@ -71,15 +71,27 @@
             app:layout_constraintTop_toBottomOf="@id/hsv_control_panel_song_title" />
 
 
+        <SeekBar
+            android:id="@+id/sb_control_panel_seek_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:progressBackgroundTint="@color/black"
+            android:progressTint="@color/gray"
+            android:thumb="@color/crimson_dark"
+             app:layout_constraintBottom_toTopOf="@id/ll_control_panel_buttons"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_control_panel_song_author" />
+
         <LinearLayout
             android:id="@+id/ll_control_panel_buttons"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_control_panel_song_author">
+            app:layout_constraintTop_toBottomOf="@id/sb_control_panel_seek_bar">
 
             <ImageButton
                 android:id="@+id/ib_previous_skip"

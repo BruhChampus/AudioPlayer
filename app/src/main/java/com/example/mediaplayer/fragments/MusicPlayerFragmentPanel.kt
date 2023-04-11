@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.registerReceiver
@@ -43,7 +44,6 @@ class MusicPlayerFragmentPanel : Fragment() {
         arguments?.let {
             audioId = it.getInt(AUDIO_ID)
             Log.e("SONG", "audioId = $audioId")
-
             buttonId = it.getInt(BUTTON_ID)
         }
 
@@ -53,7 +53,6 @@ class MusicPlayerFragmentPanel : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         binding = FragmentMusicPlayerPanelBinding.inflate(layoutInflater)
         init()
 
@@ -65,7 +64,8 @@ class MusicPlayerFragmentPanel : Fragment() {
     private fun init() {
         binding.tvControlPanelSongTitle.text = TestConstants.audioList[audioId].name
         binding.tvControlPanelSongAuthor.text = TestConstants.audioList[audioId].author
-        binding.tvControlPanelSongDuration.text = TestConstants.audioList[audioId].duration
+        binding.tvControlPanelSongDuration.text = TestConstants.audioList[audioId].durationString
+        binding.ivControlPanelSongCover.setImageResource(TestConstants.audioList[audioId].background)
 
         animation = AnimationUtils.loadAnimation(requireContext(), R.anim.text_rolling)
         binding.tvControlPanelSongTitle.startAnimation(animation)
@@ -99,21 +99,31 @@ class MusicPlayerFragmentPanel : Fragment() {
                 }
 
                 override fun onNextClicked() {
-                    Toast.makeText(requireContext(), "NExt", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Next", Toast.LENGTH_SHORT).show()
 
                 }
 
                 override fun onPreviousClicked() {
-                    Toast.makeText(requireContext(), "Prev", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Previous", Toast.LENGTH_SHORT).show()
+                    binding.sbControlPanelSeekBar.progress = 23
+
                 }
+
+                override fun onRewindClicked(audioProgress: Int, audioPassed: Int) {
+                  binding.sbControlPanelSeekBar.progress = audioProgress
+                 }
+
             })
+
         val intentFilter = IntentFilter().apply {
             addAction(MusicService.ACTION_PLAY)
             addAction(MusicService.ACTION_PAUSE)
             addAction(MusicService.ACTION_NEXT)
             addAction(MusicService.ACTION_PREVIOUS)
+            addAction(MusicService.ACTION_REWIND)
         }
         activity?.registerReceiver(mediaStateBroadcastReceiver, intentFilter)
+
 
 
         binding.ibPlay.setOnClickListener {
@@ -137,14 +147,13 @@ class MusicPlayerFragmentPanel : Fragment() {
 
 
     override fun onDestroy() {
+        super.onDestroy()
         binding.root.clearAnimation()
         activity?.unregisterReceiver(mediaStateBroadcastReceiver)
-        super.onDestroy()
     }
 
 
     companion object {
-
         @JvmStatic
         fun newInstance(audioId: Int, isPlaying: Boolean) =
             MusicPlayerFragmentPanel().apply {

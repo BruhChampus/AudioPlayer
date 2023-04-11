@@ -1,14 +1,20 @@
 package com.example.mediaplayer
 
+import android.content.pm.PackageManager
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.mediaplayer.databinding.ActivityMainBinding
 import com.example.mediaplayer.databinding.FragmentMusicPlayerPanelBinding
 import com.example.mediaplayer.databinding.SongItemBinding
 import com.example.mediaplayer.model.AudioFile
 
-class AudioFilesAdapter(private val audioList: ArrayList<AudioFile>,  private val audioClickListener: AudioClickListener) :
+class AudioFilesAdapter(
+    private val audioList: ArrayList<AudioFile>,
+    private val audioClickListener: AudioClickListener
+) :
     RecyclerView.Adapter<AudioFilesAdapter.AudioFilesViewHolder>() {
 
 
@@ -16,7 +22,7 @@ class AudioFilesAdapter(private val audioList: ArrayList<AudioFile>,  private va
         parent: ViewGroup,
         viewType: Int
     ): AudioFilesAdapter.AudioFilesViewHolder {
-val from =LayoutInflater.from(parent.context)
+        val from = LayoutInflater.from(parent.context)
         val binding = SongItemBinding.inflate(from, parent, false)
         return AudioFilesViewHolder(binding, audioClickListener)
     }
@@ -29,12 +35,16 @@ val from =LayoutInflater.from(parent.context)
         return audioList.size
     }
 
-    inner class AudioFilesViewHolder(private val binding: SongItemBinding, private val audioClickListener: AudioClickListener) :
+    inner class AudioFilesViewHolder(
+        private val binding: SongItemBinding,
+        private val audioClickListener: AudioClickListener
+    ) :
         RecyclerView.ViewHolder(binding.root) {
         fun bindAudio(audio: AudioFile) {
             binding.tvSongTitle.text = audio.name
             binding.tvSongAuthor.text = audio.author
-            binding.tvSongDuration.text = audio.duration
+            binding.tvSongDuration.text = audio.durationString
+            binding.ivSongCover.setImageResource(audio.background)
             binding.clSongItem.setOnClickListener { audioClickListener.onClick(audio) }
         }
     }
