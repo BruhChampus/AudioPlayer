@@ -1,17 +1,12 @@
 package com.example.mediaplayer.activities
 
-import android.app.ActivityManager
-import android.app.PendingIntent.getService
-import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.ServiceConnection
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.IBinder
+import android.os.CountDownTimer
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -19,24 +14,30 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
 import com.example.mediaplayer.*
 import com.example.mediaplayer.databinding.ActivityMainBinding
 import com.example.mediaplayer.fragments.MusicPlayerFragmentFullScreen
 import com.example.mediaplayer.fragments.MusicPlayerFragmentPanel
 import com.example.mediaplayer.model.AudioFile
+import com.example.mediaplayer.model.TestConstants
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity(), AudioClickListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var toggle: ActionBarDrawerToggle
-    val audioList = TestConstants.audioList
-    var currentAudio: Int = 0
+    private val audioList = TestConstants.audioList
+    private var currentAudio: Int = 0
+    private var previousAudio: Int = -1
     private lateinit var mediaStateBroadcastReceiver: ControlPanelReceiver
     private lateinit var serviceIntent: Intent
+    private var isPlaying = false
 
-    var isPlaying = false
+    private var result: Int = 0
+    private var millisTime: Float = 0f
+    private var barProgress: Int = 0
+    private var countDownTimer: CountDownTimer? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,7 +79,7 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
         val bottomSheet = binding.flBottomSheet
         val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
         bottomSheetBehavior.apply {
-            peekHeight = 500
+            peekHeight = 400
             this.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
@@ -140,18 +141,27 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
 
 
     override fun onClick(audio: AudioFile) {
-        isPlaying = true
         currentAudio = audioList.indexOf(audio)
-        val fragment = MusicPlayerFragmentPanel.newInstance(audioList.indexOf(audio), isPlaying)
-        supportFragmentManager.beginTransaction().apply {
-            replace(R.id.fl_bottom_sheet, fragment).commit()
+        if (previousAudio != currentAudio) {
+            isPlaying = true
+            barProgress = 0
+            val fragment = MusicPlayerFragmentPanel.newInstance(audioList.indexOf(audio), isPlaying)
+            supportFragmentManager.beginTransaction().apply {
+                replace(R.id.fl_bottom_sheet, fragment).commit()
+            }
+            if (countDownTimer != null) {
+                countDownTimer?.cancel()
+            }
+            startTimer(audioList[audioList.indexOf(audio)].durationInt.toLong())
+            Log.e("SONG", "previousAudio $previousAudio")
+            serviceIntent.action = MusicService.ACTION_PLAY
+            serviceIntent.putExtra(TestConstants.AUDIO_ID, currentAudio)
+            startService(serviceIntent)
+        } else {
+            Log.e("onClickForbidden", "previousAudio $previousAudio")
+            Log.e("onClickForbidden", "currentAudio $currentAudio")
         }
-
-        serviceIntent.action = MusicService.ACTION_PLAY
-        serviceIntent.putExtra(TestConstants.AUDIO_ID, currentAudio)
-
-        startService(serviceIntent)
-
+        previousAudio = currentAudio
     }
 
     override fun onDestroy() {
@@ -167,22 +177,25 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
                 override fun onPlayClicked() {
                     serviceIntent.action = MusicService.ACTION_PLAY
                     startService(serviceIntent)
+                    countDownTimer?.start()
                     isPlaying = true
                 }
 
                 override fun onPauseClicked() {
                     serviceIntent.action = MusicService.ACTION_PAUSE
                     startService(serviceIntent)
+                    pauseTimer()
                     isPlaying = false
                 }
 
                 override fun onNextClicked() {
                     if (currentAudio != audioList.size - 1) {
                         currentAudio++
+                        Log.e("onNextClicked", "currentAudio $currentAudio")
+                        previousAudio = currentAudio
+
                         isPlaying = true
                         serviceIntent.putExtra(TestConstants.AUDIO_ID, currentAudio)
-
-
                         when (supportFragmentManager.findFragmentById(R.id.fl_bottom_sheet)) {
                             is MusicPlayerFragmentPanel -> {
                                 val fragment =
@@ -206,8 +219,12 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
                                         fragment
                                     ).commitAllowingStateLoss()
                                 }
+
                             }
                         }
+                        pauseTimer()
+                        barProgress = 0
+                        startTimer(audioList[currentAudio].durationInt.toLong())
                         serviceIntent.action = MusicService.ACTION_NEXT
                         startService(serviceIntent)
                     }
@@ -216,6 +233,9 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
                 override fun onPreviousClicked() {
                     if (currentAudio != 0) {
                         currentAudio--
+                        Log.e("onPreviousClicked", "currentAudio $currentAudio")
+                        previousAudio = currentAudio
+
                         isPlaying = true
                         serviceIntent.putExtra(TestConstants.AUDIO_ID, currentAudio)
 
@@ -244,14 +264,17 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
                                 }
                             }
                         }
-
+                        pauseTimer()
+                        barProgress = 0
+                        startTimer(audioList[currentAudio].durationInt.toLong())
                         serviceIntent.action = MusicService.ACTION_PREVIOUS
                         startService(serviceIntent)
                     }
                 }
 
-                override fun onRewindClicked(audioProgress: Int,audioPassed: Int) {
+                override fun onRewindClicked(audioProgress: Int, audioPassed: Int) {
                     serviceIntent.action = MusicService.ACTION_REWIND
+                    barProgress = audioProgress
                     serviceIntent.putExtra(TestConstants.TIME_PASSED, audioPassed)
                     startService(serviceIntent)
                 }
@@ -264,6 +287,32 @@ class MainActivity : AppCompatActivity(), AudioClickListener {
             addAction(MusicService.ACTION_REWIND)
         }
         registerReceiver(mediaStateBroadcastReceiver, intentFilter)
+    }
+
+
+    private fun startTimer(songDuration: Long) {
+        countDownTimer = object : CountDownTimer(songDuration, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                val bundle = Bundle()
+                bundle.putInt(TestConstants.AUDIO_PROGRESS, barProgress++)
+                val fragment = supportFragmentManager.findFragmentById(R.id.fl_bottom_sheet)
+                if (fragment != null) {
+                    when (fragment) {
+                        is MusicPlayerFragmentPanel -> fragment.updateTime(barProgress)
+                        is MusicPlayerFragmentFullScreen -> fragment.updateProgressBar(barProgress)
+                    }
+                }
+            }
+
+            override fun onFinish() {
+                countDownTimer?.cancel()
+            }
+        }
+        countDownTimer?.start()
+    }
+
+    private fun pauseTimer() {
+        countDownTimer?.cancel()
     }
 
 

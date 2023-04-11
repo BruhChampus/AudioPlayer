@@ -1,6 +1,4 @@
-package com.example.mediaplayer
-
-import com.example.mediaplayer.model.AudioFile
+package com.example.mediaplayer.model
 
 object TestConstants {
     val audioList = ArrayList<AudioFile>()

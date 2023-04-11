@@ -8,19 +8,18 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
 import android.widget.SeekBar
 import android.widget.Toast
 import com.example.mediaplayer.ControlPanelReceiver
 import com.example.mediaplayer.MusicService
 import com.example.mediaplayer.R
-import com.example.mediaplayer.TestConstants
+import com.example.mediaplayer.model.TestConstants
 import com.example.mediaplayer.activities.MainActivity
 import com.example.mediaplayer.databinding.FragmentMusicPlayerFullScreenBinding
-import com.example.mediaplayer.databinding.FragmentMusicPlayerPanelBinding
 
 private const val AUDIO_ID = TestConstants.AUDIO_ID
 private const val BUTTON_ID = TestConstants.BUTTON_ID
+private const val AUDIO_PROGRESS = TestConstants.AUDIO_PROGRESS
 
 
 class MusicPlayerFragmentFullScreen : Fragment() {
@@ -33,6 +32,8 @@ class MusicPlayerFragmentFullScreen : Fragment() {
     private var audioDuration: Int = 0
     private var maxSongs: Int = TestConstants.audioList.size - 1
     private lateinit var mediaStateBroadcastReceiver: ControlPanelReceiver
+    private var barProgress:Int = 0
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +41,8 @@ class MusicPlayerFragmentFullScreen : Fragment() {
         arguments?.let {
             audioId = it.getInt(AUDIO_ID)
             buttonId = it.getInt(BUTTON_ID)
-         }
+            barProgress= it.getInt(AUDIO_PROGRESS)
+        }
     }
 
     override fun onCreateView(
@@ -84,7 +86,7 @@ class MusicPlayerFragmentFullScreen : Fragment() {
                 override fun onPauseClicked() {
                     binding.ibPlay.visibility = View.VISIBLE
                     binding.ibPause.visibility = View.GONE
-                 }
+                }
 
                 override fun onNextClicked() {
                     Toast.makeText(requireContext(), "Next", Toast.LENGTH_SHORT).show()
@@ -93,7 +95,7 @@ class MusicPlayerFragmentFullScreen : Fragment() {
 
                 override fun onPreviousClicked() {
                     Toast.makeText(requireContext(), "Previous", Toast.LENGTH_SHORT).show()
-                 }
+                }
 
 
                 override fun onRewindClicked(audioProgress: Int, audioPassed: Int) {
@@ -136,21 +138,12 @@ class MusicPlayerFragmentFullScreen : Fragment() {
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 audioProgress = progress//progress percentage
-                audioPassed =  (audioDuration * audioProgress)/100
-                val proshlo =  MainActivity.calculateMinutes(audioPassed)
-                val vsego =          MainActivity.calculateMinutes(audioDuration)
+                audioPassed = (audioDuration * audioProgress) / 100
+                val proshlo = MainActivity.calculateMinutes(audioPassed)
+                val vsego = MainActivity.calculateMinutes(audioDuration)
 
                 binding.tvDetailsSongDuration.text = vsego
                 binding.tvDetailsSongPassed.text = proshlo
-                
-                val rewindIntent = Intent(MusicService.ACTION_REWIND)
-                val bundle = Bundle()
-                bundle.putInt(TestConstants.TIME_PASSED, audioPassed)
-                bundle.putInt(TestConstants.AUDIO_PROGRESS, audioProgress)
-                rewindIntent.putExtras(bundle)
-                Log.e("FullScreen", "audioPassed = $audioPassed")
-                activity?.sendBroadcast(rewindIntent)
-
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -159,12 +152,26 @@ class MusicPlayerFragmentFullScreen : Fragment() {
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                    val playIntent = Intent(MusicService.ACTION_PLAY)
-                    activity?.sendBroadcast(playIntent)
+
+                val rewindIntent = Intent(MusicService.ACTION_REWIND)
+                val bundle = Bundle()
+                bundle.putInt(TestConstants.TIME_PASSED, audioPassed)
+                bundle.putInt(TestConstants.AUDIO_PROGRESS, audioProgress)
+                rewindIntent.putExtras(bundle)
+                activity?.sendBroadcast(rewindIntent)
+
+                val playIntent = Intent(MusicService.ACTION_PLAY)
+                activity?.sendBroadcast(playIntent)
+
             }
 
         })
 
+    }
+
+    fun updateProgressBar(progress:Int){
+        audioProgress = progress
+        binding.sbDetailsSeekBar.progress = progress
     }
 
     override fun onDestroy() {
